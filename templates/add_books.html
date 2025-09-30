@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Tambah Buku - Perpustakaan Digital{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Tambah Buku Baru <i class="bi bi-book-plus"></i></h2>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control") }}
+                {% for error in form.title.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.author.label(class="form-label") }}
+                {{ form.author(class="form-control") }}
+                {% for error in form.author.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.year.label(class="form-label") }}
+                {{ form.year(class="form-control") }}
+                {% for error in form.year.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control", rows=4) }}
+                {% for error in form.description.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.image.label(class="form-label") }}
+                {{ form.image(class="form-control") }}
+                {% for error in form.image.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {{ form.submit(class="btn btn-primary me-2") }}
+            <a href="{{ url_for('books') }}" class="btn btn-secondary">Kembali</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

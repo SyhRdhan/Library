@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Beranda - Perpustakaan Digital{% endblock %}
+{% block content %}
+<div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+    <h1 class="display-4">Selamat Datang di Perpustakaan Digital</h1>
+    <p class="lead">Temukan ribuan buku berkualitas dengan mudah dan akses penuh fitur manajemen.</p>
+    {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+            <p class="lead">Sebagai Admin, kelola sistem secara penuh termasuk pengguna dan buku.</p>
+        {% elif current_user.role == 'pustakawan' %}
+            <p class="lead">Sebagai Pustakawan, tambahkan, edit, dan pantau koleksi buku.</p>
+        {% else %}
+            <p class="lead">Sebagai Pengguna, pinjam buku favorit Anda dengan mudah.</p>
+        {% endif %}
+    {% endif %}
+    <a class="btn btn-danger btn-lg" href="{{ url_for('books') }}">Lihat Semua Buku</a>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Buku Terbaru</h2>
+    </div>
+    {% for book in books %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if book.image_path %}
+                    <img src="{{ url_for('static', filename=book.image_path.replace('static/', '')) }}" class="card-img-top" alt="{{ book.title }}" style="height: 250px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top placeholder-image" style="height: 250px; background-color: #333; display: flex; align-items: center; justify-content: center; color: #888; font-size: 14px;">No Image Available</div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ book.title }}</h5>
+                    <p class="card-text"><strong>Penulis:</strong> {{ book.author }} | <strong>Tahun:</strong> {{ book.year }}</p>
+                    <p class="card-text">{{ book.description[:150] }}...</p>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('book_detail', id=book.id) }}" class="btn btn-outline-danger">Detail</a>
+                        {% if current_user.is_authenticated and current_user.role == 'user' %}
+                            <a href="{{ url_for('borrow', book_id=book.id) }}" class="btn btn-danger">Pinjam</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <p class="text-center">Tidak ada buku tersedia. <a href="{{ url_for('add_book') }}">Tambahkan sekarang</a>.</p>
+        </div>
+    {% endfor %}
+</div>
+
+{% if pagination.has_prev or pagination.has_next %}
+    <nav aria-label="Pagination">
+        <ul class="pagination justify-content-center">
+            {% if pagination.has_prev %}<li class="page-item"><a class="page-link" href="{{ pagination.prev_url }}">Previous</a></li>{% endif %}
+            {% for page_num in pagination.iter_pages() %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}<li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                    {% else %}<li class="page-item"><a class="page-link" href="{{ pagination.url(page_num) }}">{{ page_num }}</a></li>{% endif %}
+                {% else %}<li class="page-item disabled"><span class="page-link">...</span></li>{% endif %}
+            {% endfor %}
+            {% if pagination.has_next %}<li class="page-item"><a class="page-link" href="{{ pagination.next_url }}">Next</a></li>{% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

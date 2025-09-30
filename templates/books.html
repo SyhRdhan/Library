@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Daftar Buku - Perpustakaan Digital{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Daftar Buku</h2>
+    {% if current_user.role in ['pustakawan', 'admin'] %}
+        <a href="{{ url_for('add_book') }}" class="btn btn-danger"><i class="bi bi-plus-circle"></i> Tambah Buku</a>
+    {% endif %}
+</div>
+
+<form method="GET" action="{{ url_for('books') }}" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan judul atau penulis..." value="{{ request.args.get('search', '') }}">
+        <button class="btn btn-danger" type="submit"><i class="bi bi-search"></i> Cari</button>
+    </div>
+</form>
+
+<div class="row">
+    {% for book in books %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                {% if book.image_path %}
+                    <img src="{{ url_for('static', filename=book.image_path.replace('static/', '')) }}" class="card-img-top" alt="{{ book.title }}" style="height: 250px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top placeholder-image" style="height: 250px; background-color: #333; display: flex; align-items: center; justify-content: center; color: #888; font-size: 14px;">No Image Available</div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ book.title }}</h5>
+                    <p class="card-text"><strong>{{ book.author }}</strong> ({{ book.year }})</p>
+                    <p class="card-text">{{ book.description[:150] }}...</p>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('book_detail', id=book.id) }}" class="btn btn-outline-danger btn-sm">Detail</a>
+                        {% if current_user.role in ['pustakawan', 'admin'] %}
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('edit_book', id=book.id) }}" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+                                {% if current_user.role == 'admin' %}
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ book.id }}">
+                                        <i class="bi bi-trash"></i> Hapus
+                                    </button>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {% if current_user.role == 'user' %}
+                            <a href="{{ url_for('borrow', book_id=book.id) }}" class="btn btn-danger btn-sm">Pinjam</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Konfirmasi Hapus -->
+        <div class="modal fade" id="deleteModal{{ book.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark text-white">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">Konfirmasi Hapus</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        Yakin ingin menghapus buku "{{ book.title }}"? Aksi ini tidak dapat dibatalkan.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <a href="{{ url_for('delete_book', id=book.id) }}" class="btn btn-danger">Hapus</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <p class="text-center">Tidak ada buku ditemukan. <a href="{{ url_for('add_book') }}">Tambahkan buku baru</a>.</p>
+        </div>
+    {% endfor %}
+</div>
+
+{% if pagination %}
+    <nav aria-label="Pagination">
+        {{ pagination.links }}
+    </nav>
+{% endif %}
+{% endblock %}

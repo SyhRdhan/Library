@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Edit Buku - Perpustakaan Digital{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        {% if book %}
+            <h2 class="mb-4">Edit Buku: {{ book.title }} <i class="bi bi-pencil-square"></i></h2>
+        {% else %}
+            <h2 class="mb-4 text-danger">Error: Buku tidak ditemukan <i class="bi bi-exclamation-triangle"></i></h2>
+            <a href="{{ url_for('books') }}" class="btn btn-secondary">Kembali ke Daftar Buku</a>
+            {% return %}
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control", value=book.title) }}
+                {% for error in form.title.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.author.label(class="form-label") }}
+                {{ form.author(class="form-control", value=book.author) }}
+                {% for error in form.author.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.year.label(class="form-label") }}
+                {{ form.year(class="form-control", value=book.year) }}
+                {% for error in form.year.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control", rows=4, value=book.description) }}
+                {% for error in form.description.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.image.label(class="form-label") }}
+                {{ form.image(class="form-control") }}
+                {% if book.image_path %}
+                    <p class="text-muted">Gambar saat ini: <img src="{{ url_for('static', filename=book.image_path.replace('static/', '')) }}" style="width: 100px; height: auto;"></p>
+                {% endif %}
+                {% for error in form.image.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {{ form.submit(class="btn btn-danger me-2") }}
+            <a href="{{ url_for('books') }}" class="btn btn-secondary">Kembali ke Daftar Buku</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

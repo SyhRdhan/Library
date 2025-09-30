@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Profil - Perpustakaan Digital{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Informasi Akun</h2>
+        <div class="card mb-4">
+            <div class="card-body">
+                <p><strong>Username:</strong> {{ current_user.username }}</p>
+                <p><strong>Role:</strong> {{ current_user.role | capitalize }}</p>
+                <p><strong>Total Peminjaman Aktif:</strong> {{ active_loans | length }}</p>
+            </div>
+        </div>
+
+        <h3 class="mt-4">Riwayat Peminjaman</h3>
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Buku</th>
+                        <th>Tanggal Pinjam</th>
+                        <th>Tenggat</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loan in loans %}
+                        <tr>
+                            <td>{{ loan.book.title }} oleh {{ loan.book.author }}</td>
+                            <td>{{ loan.borrow_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ loan.due_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if not loan.returned %}
+                                    <span class="badge bg-warning">Dipinjam</span>
+                                {% else %}
+                                    <span class="badge bg-success">Dikembalikan pada {{ loan.return_date.strftime('%Y-%m-%d') }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not loan.returned %}
+                                    <a href="{{ url_for('return_book', loan_id=loan.id) }}" class="btn btn-danger btn-sm">Kembalikan</a>
+                                {% else %}
+                                    <span class="text-muted">Selesai</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5" class="text-center">Belum ada riwayat peminjaman.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-person-circle display-1 text-danger mb-3"></i>
+                <h5>{{ current_user.username }}</h5>
+                <p class="text-muted">{{ current_user.role | capitalize }}</p>
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-danger">Edit Profil</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a href="{{ url_for('home') }}" class="btn btn-secondary mt-3">Kembali ke Beranda</a>
+{% endblock %}
